@@ -13,18 +13,11 @@ use jsonwebtoken::{encode, EncodingKey, Header};
 use reqwest::header::LOCATION;
 use uuid::Uuid;
 
-pub fn user_to_response(user: &User) -> FilteredUser {
-    FilteredUser {
-        id: user.id.to_owned().unwrap(),
-        name: user.name.to_owned(),
-        email: user.email.to_owned(),
-        verified: user.verified.to_owned(),
-        photo: user.photo.to_owned(),
-        provider: user.provider.to_owned(),
-        role: user.role.to_owned(),
-        createdAt: user.createdAt.unwrap(),
-        updatedAt: user.updatedAt.unwrap(),
-    }
+#[get("/healthchecker")]
+async fn health_checker_handler() -> impl Responder {
+    const MESSAGE: &str = "How to Implement Google and GitHub OAuth2 in Rust";
+
+    HttpResponse::Ok().json(serde_json::json!({"status": "success", "message": MESSAGE}))
 }
 
 #[post("/auth/register")]
@@ -37,10 +30,8 @@ async fn register_user_handler(
     let user = vec.iter().find(|user| user.email == body.email);
 
     if user.is_some() {
-        return HttpResponse::Conflict().json(serde_json::json!({
-            "status": "fail",
-            "message": "Email already exist"
-        }));
+        return HttpResponse::Conflict()
+            .json(serde_json::json!({"status": "fail","message": "Email already exist"}));
     }
 
     let uuid_id = Uuid::new_v4();
@@ -70,7 +61,6 @@ async fn register_user_handler(
 
     HttpResponse::Ok().json(json_response)
 }
-
 #[post("/auth/login")]
 async fn login_user_handler(
     body: web::Json<LoginUserSchema>,
@@ -92,6 +82,9 @@ async fn login_user_handler(
     if user.provider == "Google" {
         return HttpResponse::Unauthorized()
             .json(serde_json::json!({"status": "fail", "message": "Use Google OAuth2 instead"}));
+    } else if user.provider == "GitHub" {
+        return HttpResponse::Unauthorized()
+            .json(serde_json::json!({"status": "fail", "message": "Use GitHub OAuth instead"}));
     }
 
     let jwt_secret = data.env.jwt_secret.to_owned();
@@ -249,8 +242,23 @@ async fn get_me_handler(
     HttpResponse::Ok().json(json_response)
 }
 
+pub fn user_to_response(user: &User) -> FilteredUser {
+    FilteredUser {
+        id: user.id.to_owned().unwrap(),
+        name: user.name.to_owned(),
+        email: user.email.to_owned(),
+        verified: user.verified.to_owned(),
+        photo: user.photo.to_owned(),
+        provider: user.provider.to_owned(),
+        role: user.role.to_owned(),
+        createdAt: user.createdAt.unwrap(),
+        updatedAt: user.updatedAt.unwrap(),
+    }
+}
+
 pub fn config(conf: &mut web::ServiceConfig) {
     let scope = web::scope("/api")
+        .service(health_checker_handler)
         .service(register_user_handler)
         .service(login_user_handler)
         .service(google_oauth_handler)

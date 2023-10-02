@@ -1,4 +1,3 @@
-
 use actix_web::web;
 use reqwest::{Client, Url};
 use serde::Deserialize;
@@ -35,6 +34,9 @@ pub async fn request_token(
     let root_url = "https://oauth2.googleapis.com/token";
     let client = Client::new();
 
+    print!("client secret: {}", client_secret);
+    println!("client id: {}", client_id);
+
     let params = [
         ("grant_type", "authorization_code"),
         ("redirect_uri", redirect_url.as_str()),
@@ -49,6 +51,7 @@ pub async fn request_token(
         Ok(oauth_response)
     } else {
         let message = "An error occurred while trying to retrieve access token.";
+        println!("{}", response.text().await?);
         Err(From::from(message))
     }
 }
