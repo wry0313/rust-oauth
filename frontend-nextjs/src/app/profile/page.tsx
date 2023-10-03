@@ -1,37 +1,63 @@
-"use client"
+"use client";
 
+import { toast } from "react-toastify";
+import useStore from "@/store";
+import { IUser } from "@/store/types";
 import { useEffect, useState } from "react";
-
-async function getUser() {
-
-  try {
-    const response = await fetch(`http://localhost:8000/api/users/me`, {
-      method: "GET",
-      credentials: "include",
-    });
-    if (!response.ok) {
-        throw await response.json();
-      }
-
-    return response.json();
-  } catch (error) {
-    console.log(error);
-  }
-}
+import { useRouter } from "next/navigation";
 
 export default function Page() {
-    const [user, setUser] = useState(null);
-    useEffect(() => {
-        getUser().then((data) => {
-            console.log(data);
-            setUser(data);
-        })
-        .catch((error) => {
-            console.log(error);
-        }
-        )
+  const { setAuthUser, setRequestLoading, authUser, requestLoading } =
+    useStore();
+  const router = useRouter();
 
-    }
-    , []);
-  return <div>{user? user :"loading"}</div>;
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        setRequestLoading(true);
+        const response = await fetch(`http://localhost:8000/api/users/me`, {
+          credentials: "include",
+        });
+
+        if (!response.ok) {
+          throw await response.json();
+        }
+
+        const data = await response.json();
+
+        const user = data.data.user as IUser;
+        setRequestLoading(false);
+        // console.log(user);
+
+        setAuthUser(user);
+      } catch (error: any) {
+        setRequestLoading(false);
+        if (error.error) {
+          error.error.forEach((err: any) => {
+            toast.error(err.message, {
+              position: "top-right",
+            });
+          });
+          return;
+        }
+        const resMessage =
+          (error.response &&
+            error.response.data &&
+            error.response.data.message) ||
+          error.message ||
+          error.toString();
+
+        if (error?.message === "You are not logged in") {
+          router.push("/login");
+        }
+
+        toast.error(resMessage, {
+          position: "top-right",
+        });
+      }
+    };
+    fetchUser();
+  }, [router, setAuthUser, setRequestLoading]);
+
+  return <div>{authUser ? JSON.stringify(authUser) : "loading"}</div>;
 }
