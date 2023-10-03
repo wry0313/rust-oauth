@@ -82,10 +82,7 @@ async fn login_user_handler(
     if user.provider == "Google" {
         return HttpResponse::Unauthorized()
             .json(serde_json::json!({"status": "fail", "message": "Use Google OAuth2 instead"}));
-    } else if user.provider == "GitHub" {
-        return HttpResponse::Unauthorized()
-            .json(serde_json::json!({"status": "fail", "message": "Use GitHub OAuth instead"}));
-    }
+    } 
 
     let jwt_secret = data.env.jwt_secret.to_owned();
     let now = Utc::now();
@@ -145,6 +142,8 @@ async fn google_oauth_handler(
     }
 
     let google_user = google_user.unwrap();
+
+    print!("google user: {:?}", google_user);
 
     let mut vec = data.db.lock().unwrap();
     let email = google_user.email.to_lowercase();

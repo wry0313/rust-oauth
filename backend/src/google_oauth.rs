@@ -11,7 +11,7 @@ pub struct OAuthResponse {
     pub id_token: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct GoogleUserResult {
     pub id: String,
     pub email: String,
@@ -33,9 +33,6 @@ pub async fn request_token(
 
     let root_url = "https://oauth2.googleapis.com/token";
     let client = Client::new();
-
-    print!("client secret: {}", client_secret);
-    println!("client id: {}", client_id);
 
     let params = [
         ("grant_type", "authorization_code"),
