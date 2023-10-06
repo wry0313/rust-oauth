@@ -3,7 +3,4 @@ export interface IUser {
     name: string;
     email: string;
     role: string;
-    photo: string;
-    provider: string;
-    verified: string;
   }

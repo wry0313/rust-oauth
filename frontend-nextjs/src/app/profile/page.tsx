@@ -25,10 +25,9 @@ export default function Page() {
 
         const data = await response.json();
 
-        const user = data.data.user as IUser;
+        const user = data.data as IUser;
         setRequestLoading(false);
-        // console.log(user);
-
+        // consol---[]]../////-
         setAuthUser(user);
       } catch (error: any) {
         setRequestLoading(false);
@@ -59,5 +58,21 @@ export default function Page() {
     fetchUser();
   }, [router, setAuthUser, setRequestLoading]);
 
-  return <div>{authUser ? JSON.stringify(authUser) : "loading"}</div>;
+  return (
+    <div>
+      {authUser ? JSON.stringify(authUser) : "loading"}
+      <button
+        onClick={() => {
+          fetch("http://localhost:8000/api/auth/logout", {
+            credentials: "include",
+          }).then(() => {
+            setAuthUser(null);
+            router.push("/");
+          });
+        }}
+      >
+        logout
+      </button>
+    </div>
+  );
 }
