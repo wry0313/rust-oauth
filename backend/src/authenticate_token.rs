@@ -10,7 +10,6 @@ use serde_json::json;
 
 use crate::model::{AppState, TokenClaims};
 
-
 pub struct AuthenticationGuard {
     pub user_id: String,
 }

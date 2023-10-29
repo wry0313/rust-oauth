@@ -6,7 +6,7 @@ use std::sync::{Arc, Mutex};
 use crate::config;
 
 #[allow(non_snake_case)]
-#[derive(Debug, Deserialize, Serialize, Clone)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct User {
     pub id: Option<String>,
     pub name: String,

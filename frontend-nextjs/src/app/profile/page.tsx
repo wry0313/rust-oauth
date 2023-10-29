@@ -15,7 +15,7 @@ export default function Page() {
     const fetchUser = async () => {
       try {
         setRequestLoading(true);
-        const response = await fetch(`http://localhost:8000/api/users/me`, {
+        const response = await fetch(`http://localhost:8080/api/users/me`, {
           credentials: "include",
         });
 
@@ -63,7 +63,7 @@ export default function Page() {
       {authUser ? JSON.stringify(authUser) : "loading"}
       <button
         onClick={() => {
-          fetch("http://localhost:8000/api/auth/logout", {
+          fetch("http://localhost:8080/api/auth/logout", {
             credentials: "include",
           }).then(() => {
             setAuthUser(null);
